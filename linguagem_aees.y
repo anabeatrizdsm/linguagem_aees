@@ -17,7 +17,7 @@
 %token	tMenos
 %token	tEscreve
 %token	tUnder
-%token  tEsclama
+%token  tExclama
 %token 	tAbreColchetes
 %token	tFechaColchetes
 %token 	tSeta
@@ -43,6 +43,8 @@
 %token 	tConst
 %token 	tVarString
 %token	tNum
+%token 	tVirgula
+%token 	tNone
 
 %left '*' '/'
 %left '+' '-'
@@ -56,76 +58,76 @@ inicio : libNumString libCRC body ;
 libNumString: tLib tPorcent tNumString tPorcent | ;
 libCRC: tLib tPorcent tCRC tPorcent | ;
 
-constante: tConst tPorcent tId tPorcent tIgual tAp tipo tFp tExclama ; 
-tipo : tNum | tVarString ;
+/*constante : tConst tPorcent tId tPorcent tIgual tAp tipo tFp tExclama ; 
+tipo : tNum | tVarString ;*/
 
 /******Programa principal******/
-body: tBegin tAp tFp tAbreChave corpo tFechaChave tFim tExclama ;
+body: tBegin tAp tFp tAbreChave instrucoes constante escolha tFechaChave tFim tExclama functions ;
+escolha : repete | seletiva | condicao | ;
 
-variavel: tNum tPorcent iId tPorcent tIgual tNumero tExclama | 
-		  tVarString tPorcent iId tPorcent tIgual tId tExclama | 
-		  tVarString tPorcent iId tPorcent tExclama | 
-		  tNum tPorcent iId tPorcent tExclama ;
+constante : tConst tPorcent tId tPorcent tIgual tAp tipo tFp tExclama ; 
+tipo : tNum | tVarString ;
+
+variavel : tNum tPorcent tId tPorcent tIgual tNumero tExclama | 
+		   tVarString tPorcent tId tPorcent tIgual tId tExclama | 
+		   tVarString tPorcent tId tPorcent tExclama | 
+		   tNum tPorcent tId tPorcent tExclama ;
 
 entrada: tRecebe tMenor tId tMaior tExclama;
-saida: tEscreve tMenor tId tMaior tExclama;
+saida: 	 tEscreve tMenor tId tMaior tExclama;
 
-incremento: tId tMais tMais ;
-decremento: tId tMenos tMenos ;
-incre_decre: incremento | decremento ;
+incremento : tId tMais tMais ;
+decremento : tId tMenos tMenos ;
+incre_decre : incremento | decremento ;
 
-/******Estrutura de repetição******/
+/******Estrutura de repeticao******/
+
+op: tMaior | tMenor | tIgual ;
 repete: tAbreColchetes tRepeat tFechaColchetes tId tIgual tNumero tExclama 
-		tId tMaior tNumero tExclama incre_decre tAbreChave corpo tFechaChave;
+		tId op tNumero tExclama incre_decre tAbreChave instrucoes tFechaChave ;
 
-corpo: variavel | entrada | saida | condicao | seletiva | repete ;
+instrucoes: variavel | entrada | saida | condicao | seletiva | repete ;
 
 /******Estrutura seletiva*******/
-seletiva: 	tAbreColchetes tChoice tFechaColchetes
-			tAp tId tFp tAbreChave tAbreColchetes 
-			tCheck tFechaColchetes tNumero tInicioCheck 
-			corpo_seletiva ;
+estrutura_seletiva: tAbreColchetes tChoice tFechaColchetes tAp tId tFp tAbreChave instrucoes_seletiva;
+inicio_seletiva: estrutura_seletiva ;
+instrucoes_seletiva: inicio_seletiva variavel | entrada | saida | repete | condicao ;
+corpo_seletiva: instrucoes_seletiva ;
 
-			corpo_seletiva: varivavel | entrada | saida | repete | condicao ;
-
-			tMenor tStopCheck tMaior ;
-			tAbreColchetes tStandart tFechaColchetes tInicioCheck tWrite tMenor tId tMenor tEsclama ;
-			tFechaChave ;
+standart: tAbreColchetes tStandart tFechaColchetes corpo_seletiva tExclama;
+seletiva: tAbreColchetes tCheck tFechaColchetes tNumero tInicioCheck corpo_seletiva standart tMenor tStopCheck tMaior;
 
 /******Estrututa condicional******/
 
-condicao: tAbreColchetes tCond tFechaColchetes tAbreChave 
-		  tWhenever tAp tId tIgual tId 
+condicao: tAbreColchetes tCond tFechaColchetes tAbreChave  
+		  tWhenever tAp tId tIgual tId
 		  | tId tMaior tId 
 		  | tId tMenor tId 
 		  | tId tIgual tNum 
 		  | tId tMaior tNum 
-		  | tId TMenor tNum tFp ;
-
-		corpo_da_estrutura: variavel | entrada | saida | condicao | seletiva | repete | incremento | decremento;
+		  | tId tMenor tNum tFp seta corpoestrutura tWhenNot seta tFechaChave ;
 		
-		tSeta corpo_da_estrutura | ;
+		seta : tSeta ;
+		corpoestrutura: variavel | entrada | saida | condicao | seletiva | repete | incremento | decremento | ;
 
-		tWhenNot tSeta corpo_da_estrutura | ;
-
-		tFechaChave;
+		/*funÃ§Ã£o*/
+parametros: tId tDoisPontos tipo tVirgula parametros | tId tDoisPontos tipo ;
+retornoFuncao: tipo | tNone;
+function: tAbreColchetes tActivity tFechaColchetes tId tAp parametros tFp tDoisPontos retornoFuncao tAbreColchetes instrucoes tFechaColchetes;
+functions: function ;
 
 %%
-
 int main(void)
 {
    yyparse();
    return(1);
 }
-
 int yywrap(void)
 {
    return(1);
 }
-
 int yyerror(void)
 {
     printf("Error\n");
     return(1);
 }
-

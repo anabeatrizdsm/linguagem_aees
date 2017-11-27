@@ -2,9 +2,8 @@
 #include "y.tab.h"
 %}
 
-ID [A-Za-z][A-Za-z0-9_]*
+ID [A-Za-z_][A-Za-z0-9_]*
 NUM [0-9]+
-STRING ["][A-Za-z]*["]
 
 %%
 
@@ -23,7 +22,7 @@ STRING ["][A-Za-z]*["]
 "-"						{ return tMenos; }
 "Write"					{ return tEscreve; }
 "_"						{ return tUnder; }
-"!"						{ return tEsclama; }
+"!"						{ return tExclama; }
 "[" 					{ return tAbreColchetes;}
 "]"	 					{ return tFechaColchetes;}
 "->" 					{ return tSeta;}
@@ -49,6 +48,8 @@ STRING ["][A-Za-z]*["]
 ".num"					{ return tNum;}
 {ID}					{ return tId; }
 {NUM}					{ return tNumero; }
+"," 					{ return tVirgula;}
+"none"					{ return tNone; }
 [ \n\t]		
 .						{ return *yytext; }
 
